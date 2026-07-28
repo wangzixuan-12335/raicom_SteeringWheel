@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32F427II</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.17.1</PackID>
+          <PackID>Keil.STM32F4xx_DFP.3.1.1</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x200000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -603,6 +603,111 @@
               <FileName>Driver_Vofa.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\src\Driver_Vofa.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyChassis.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyChassis.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyController.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyController.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyCrane.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyCrane.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyDelay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyDelay.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyI2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyI2C.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyMotor3508.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyMotor3508.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MySerial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MySerial.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyUSART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\src\Driver_MyUSART.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyChassis.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyChassis.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyController.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyController.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyCrane.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyCrane.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyDelay.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyDelay.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyDMA.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyDMA.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyI2C.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyI2C.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyMotor3508.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyMotor3508.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MySerial.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MySerial.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyServo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyServo.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyTof.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyTof.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyUSART.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\inc\Driver_MyUSART.h</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyDMA.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\Driver_MyDMA.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_MyServo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\src\Driver_MyServo.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -29,11 +29,72 @@
 #include "Driver_Fsm.h"
 #include "Driver_Vofa.h"
 
+#include "Driver_MyUSART.h"
+#include "Driver_MyDMA.h"
+#include "Driver_MyServo.h"
+#include "Driver_MyMotor3508.h"
+#include "Driver_MyChassis.h"
+#include "Driver_MyCrane.h"
+#include "Driver_MyController.h"
+#include "Driver_MyDelay.h"
+#include "Driver_MyI2C.h"
+#include "Driver_MyTof.h"
+#include "Driver_MySerial.h"
+
 #ifdef __HANDLE_GLOBALS
 #define __HANDLE_EXT
 #else
 #define __HANDLE_EXT extern
 #endif
+
+//上下位机通信
+//头:0xAA 尾部:0x0D 0x0A
+__HANDLE_EXT uint8_t Lower_Computer_Message[9];
+
+//物理距离结果
+__HANDLE_EXT uint16_t distance_chassis_mm; // 激光测距结果（单位：毫米）
+__HANDLE_EXT uint16_t distance_x_mm; // 夹爪伸长结果（单位：毫米）
+__HANDLE_EXT uint16_t distance_y_mm; // 夹爪离地结果（单位：毫米）
+
+
+//遥控器
+__HANDLE_EXT uint8_t usart1_raw_data[18];
+__HANDLE_EXT usart1_data_decoded_type usart1_data_decoded;
+
+//电机结构体
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_LF;
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_RF;
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_LB;
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_RB;
+
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_Gantry_Crane_X1;
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_Gantry_Crane_Y1;
+__HANDLE_EXT MyMotor_3508_Type Motor_3508_Gantry_Crane_Y2;
+
+
+//PID结构体
+__HANDLE_EXT PID_Type Motor_3508_LF_PID;
+__HANDLE_EXT PID_Type Motor_3508_RF_PID;
+__HANDLE_EXT PID_Type Motor_3508_LB_PID;
+__HANDLE_EXT PID_Type Motor_3508_RB_PID;
+__HANDLE_EXT PID_Type Motor_3508_LF_Position_PID;
+__HANDLE_EXT PID_Type Motor_3508_RF_Position_PID;
+__HANDLE_EXT PID_Type Motor_3508_LB_Position_PID;
+__HANDLE_EXT PID_Type Motor_3508_RB_Position_PID;
+
+__HANDLE_EXT PID_Type Motor_3508_Gantry_Crane_X1_PID;
+__HANDLE_EXT PID_Type Motor_3508_Gantry_Crane_Y1_PID;
+__HANDLE_EXT PID_Type Motor_3508_Gantry_Crane_Y2_PID;
+__HANDLE_EXT PID_Type Motor_3508_Gantry_Crane_X1_Position_PID;
+__HANDLE_EXT PID_Type Motor_3508_Gantry_Crane_Y1_Position_PID;
+__HANDLE_EXT PID_Type Motor_3508_Gantry_Crane_Y2_Position_PID;
+
+//电机结构体集合
+__HANDLE_EXT MyMotor_3508_Type_Collection MyMotor_3508_Collection;
+__HANDLE_EXT MyMotor_3508_Crane_Type_Collection Motor_3508_Gantry_Crane_Collection;
+
+//夹爪舵机
+__HANDLE_EXT PWM_Type PWM_Holding_Jaw_Servo;
 
 // Stone Id
 __HANDLE_EXT uint8_t Board_Id, Robot_Id;
