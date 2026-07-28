@@ -68,7 +68,54 @@ void UART8_IRQHandler(void) {
 
 // CAN1数据接收中断服务函数
 void CAN1_RX0_IRQHandler(void) {
-    Bridge_Receive_CAN(&BridgeData, CAN1_BRIDGE);
+    // Bridge_Receive_CAN(&BridgeData, CAN1_BRIDGE);
+    CanRxMsg rx_message;
+
+    // 检查是否收到数据
+    if (CAN_GetITStatus(CAN1, CAN_IT_FMP0) != RESET) {
+        // 读取接收到的数据
+        CAN_Receive(CAN1, CAN_FIFO0, &rx_message); 
+        // 根据 ID 进行处理
+        switch (rx_message.StdId) {
+            case 0x201:
+                // 处理电机 1 数据
+                Motor_decode_data(&Motor_3508_LF,rx_message.Data);
+                //Update_3508_Continuous_Angle(&Motor_3508_LF);
+                break;
+            case 0x202:
+                // 处理电机 2 数据
+                Motor_decode_data(&Motor_3508_RF,rx_message.Data);
+                //Update_3508_Continuous_Angle(&Motor_3508_RF);
+                break;
+            case 0x203:
+                //电机3
+                Motor_decode_data(&Motor_3508_LB,rx_message.Data);
+                //Update_3508_Continuous_Angle(&Motor_3508_LB);
+                break;
+            case 0x204:
+                //电机4
+                Motor_decode_data(&Motor_3508_RB,rx_message.Data);
+                //Update_3508_Continuous_Angle(&Motor_3508_RB);
+                break;
+            case 0x205:
+                // Motor_decode_data(&Motor_3508_Gantry_Crane_X1,rx_message.Data);
+                // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_X1);
+                break;
+            case 0x206:
+                // Motor_decode_data(&Motor_3508_Gantry_Crane_Y1,rx_message.Data);
+                // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_Y1);
+                break;
+            case 0x207:
+                // Motor_decode_data(&Motor_3508_Gantry_Crane_Y2,rx_message.Data);
+                // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_Y2);
+                break;
+            default:
+                break;
+        }
+        
+        // 清除中断标志位
+        CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
+    }
 }
 
 // CAN2数据接收中断服务函数
@@ -81,9 +128,35 @@ extern volatile uint32_t ulHighFrequencyTimerTicks;
 
 void TIM2_IRQHandler(void) {
     if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
-        ulHighFrequencyTimerTicks++;
+        //ulHighFrequencyTimerTicks++;
+
+        //底盘测试
+        //后期要加上死区
+        //SendChassis_ByRPM(&MyMotor_3508_Collection,CAN1,0x200,usart1_data_decoded.r1y/50,0,0,0);
+        //Chassis_Calculate(&MyMotor_3508_Collection,CAN1,0x200,(float)usart1_data_decoded.r1y/1000.0f,(float)usart1_data_decoded.r1x/1000.0f,(float)usart1_data_decoded.r2x/330.0f,Chassis_L,Chassis_W);
+        
+        //龙门架测试
+        //SendCrane_ByRPM(&Motor_3508_Gantry_Crane_Collection,CAN1,0x1FF,usart1_data_decoded.r1y/50,0,0);
+        
+        //舵机控制测试
+        //SetServoByController(usart1_data_decoded.s1);
+        
+        //遥控器函数(运动控制)
+        MyController_Move(&usart1_data_decoded);
+
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
         TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+    }
+}
+
+void TIM3_IRQHandler(void) {
+    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
+        
+        //遥控器函数(保持角度)
+        MyController_Stay(&usart1_data_decoded);
+
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+        TIM_ClearFlag(TIM3, TIM_FLAG_Update);
     }
 }
 
