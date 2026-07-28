@@ -109,6 +109,14 @@ void CAN1_RX0_IRQHandler(void) {
                 // Motor_decode_data(&Motor_3508_Gantry_Crane_Y2,rx_message.Data);
                 // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_Y2);
                 break;
+            case 0x208:
+                break;
+            case 0x209:
+                break;
+            case 0x20A:
+                break;
+            case 0x20B:
+                break;
             default:
                 break;
         }
