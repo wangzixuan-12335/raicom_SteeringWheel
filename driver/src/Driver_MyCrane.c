@@ -40,7 +40,7 @@ void SendCrane_ByRPM(MyMotor_3508_Crane_Type_Collection *motor_collect,CAN_TypeD
 
 /**
  * @description: 混合位置环与速度斜坡环的龙门架电机控制
- * @param {MyMotor_3508_Type} *motor
+ * @param {MyMotor_Type} *motor
  * @param {int16_t} rc_val          遥控器值
  * @param {int64_t} max_position    位置最大值
  * @param {int64_t} min_position    位置最小值
@@ -50,7 +50,7 @@ void SendCrane_ByRPM(MyMotor_3508_Crane_Type_Collection *motor_collect,CAN_TypeD
  * @param {float} ramp_dec_step     斜坡减速步长
  * @return {int16_t} final_speed_cmd 最终速度RPM
  */
-int16_t Crane_Control_Loop(MyMotor_3508_Type *motor, int16_t rc_val, 
+int16_t Crane_Control_Loop(MyMotor_Type *motor, int16_t rc_val, 
     int64_t max_position, int64_t min_position, 
     float motor_speed_up, float motor_speed_down,
     float ramp_acc_step, float ramp_dec_step)

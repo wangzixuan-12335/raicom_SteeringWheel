@@ -17,23 +17,32 @@ void EXTI9_5_IRQHandler(void) {
 
 // DBus空闲中断(USART1)
 void USART1_IRQHandler(void) {
-    uint8_t UARTtemp;
+    if (USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)
+    {
+        /**
+         * 【核心：清除空闲中断标志位】
+         * 必须先读 SR 寄存器，再读 DR 寄存器，这是 F427 硬件手册规定的清除序列
+         */
+        volatile uint32_t temp;
+        temp = USART1->SR;
+        temp = USART1->DR;
 
-    UARTtemp = USART1->DR;
-    UARTtemp = USART1->SR;
+        // 1. 停止 DMA 数据流，准备处理缓存
+        DMA_Cmd(DMA2_Stream2, DISABLE);
 
-    DMA_Cmd(DMA2_Stream2, DISABLE);
+        // 2. 计算实际接收到的字节数
+        // 这里的 18 必须对应你设置 DMA_BufferSize 的值
+        uint16_t rx_len = 18 - DMA_GetCurrDataCounter(DMA2_Stream2);
 
-    // disabe DMA
-    DMA_Disable(USART1_Rx);
+        // 3. 长度校验：只有刚好收到 18 字节才认为是合法的 DBUS 数据包        
+        DBUS_Decode(usart1_raw_data, &usart1_data_decoded);
 
-    // 数据量正确
-    if (DMA_Get_Stream(USART1_Rx)->NDTR == DBUS_BACK_LENGTH) {
-        DBus_Update(&remoteData, &keyboardData, &mouseData, remoteBuffer); //解码
+        // 4. 重置 DMA 计数器并重新开启
+        // 必须先置 18，再使能，DMA 才能重新开始从 buf[0] 接收
+        DMA_SetCurrDataCounter(DMA2_Stream2, 18);
+        DMA_Cmd(DMA2_Stream2, ENABLE);
+        USART_ClearITPendingBit(USART1,USART_IT_IDLE);
     }
-
-    // enable DMA
-    DMA_Enable(USART1_Rx, DBUS_LENGTH + DBUS_BACK_LENGTH);
 }
 
 /**
@@ -74,51 +83,37 @@ void CAN1_RX0_IRQHandler(void) {
     // 检查是否收到数据
     if (CAN_GetITStatus(CAN1, CAN_IT_FMP0) != RESET) {
         // 读取接收到的数据
-        CAN_Receive(CAN1, CAN_FIFO0, &rx_message); 
-        // 根据 ID 进行处理
-        switch (rx_message.StdId) {
-            case 0x201:
-                // 处理电机 1 数据
+        CAN_Receive(CAN1, CAN_FIFO0, &rx_message);
+        uint8_t id=rx_message.StdId-0x200;
+        if(id>0 && id<=4){
+            //3508电机组
+            if(id==Motor_3508_LF.motor_id){
                 Motor_decode_data(&Motor_3508_LF,rx_message.Data);
-                //Update_3508_Continuous_Angle(&Motor_3508_LF);
-                break;
-            case 0x202:
-                // 处理电机 2 数据
+            }
+            if(id==Motor_3508_RF.motor_id){
                 Motor_decode_data(&Motor_3508_RF,rx_message.Data);
-                //Update_3508_Continuous_Angle(&Motor_3508_RF);
-                break;
-            case 0x203:
-                //电机3
+            }
+            if(id==Motor_3508_LB.motor_id){
                 Motor_decode_data(&Motor_3508_LB,rx_message.Data);
-                //Update_3508_Continuous_Angle(&Motor_3508_LB);
-                break;
-            case 0x204:
-                //电机4
+            }
+            if(id==Motor_3508_RB.motor_id){
                 Motor_decode_data(&Motor_3508_RB,rx_message.Data);
-                //Update_3508_Continuous_Angle(&Motor_3508_RB);
-                break;
-            case 0x205:
-                // Motor_decode_data(&Motor_3508_Gantry_Crane_X1,rx_message.Data);
-                // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_X1);
-                break;
-            case 0x206:
-                // Motor_decode_data(&Motor_3508_Gantry_Crane_Y1,rx_message.Data);
-                // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_Y1);
-                break;
-            case 0x207:
-                // Motor_decode_data(&Motor_3508_Gantry_Crane_Y2,rx_message.Data);
-                // Update_3508_Continuous_Angle(&Motor_3508_Gantry_Crane_Y2);
-                break;
-            case 0x208:
-                break;
-            case 0x209:
-                break;
-            case 0x20A:
-                break;
-            case 0x20B:
-                break;
-            default:
-                break;
+            }
+        }else if(id>4 && id<=8){
+            //6020电机组
+            id-=4;
+            if(id==Motor_6020_LF.motor_id){
+                Motor_decode_data(&Motor_6020_LF,rx_message.Data);
+            }
+            if(id==Motor_6020_RF.motor_id){
+                Motor_decode_data(&Motor_6020_RF,rx_message.Data);
+            }
+            if(id==Motor_6020_LB.motor_id){
+                Motor_decode_data(&Motor_6020_LB,rx_message.Data);
+            }
+            if(id==Motor_6020_RB.motor_id){
+                Motor_decode_data(&Motor_6020_RB,rx_message.Data);
+            }
         }
         
         // 清除中断标志位
@@ -161,7 +156,7 @@ void TIM3_IRQHandler(void) {
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
         
         //遥控器函数(保持角度)
-        MyController_Stay(&usart1_data_decoded);
+        //MyController_Stay(&usart1_data_decoded);
 
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
         TIM_ClearFlag(TIM3, TIM_FLAG_Update);
