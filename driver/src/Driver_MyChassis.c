@@ -146,6 +146,7 @@ void Chassis_Send(Chassis_Type *chassis){
     int16_t output_3508[4];
     int16_t output_6020[4];
     int32_t angle_error;
+    float target_steer_speed;
     MyMotor_Type* Motor_3508[4]={
         chassis->Chassis_3508_Type_Structure->LF,
         chassis->Chassis_3508_Type_Structure->RF,
@@ -156,10 +157,7 @@ void Chassis_Send(Chassis_Type *chassis){
         chassis->Chassis_6020_Type_Structure->RF,
         chassis->Chassis_6020_Type_Structure->LB,
         chassis->Chassis_6020_Type_Structure->RB};
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        output_3508[Motor_3508[i]->motor_id-1]=PID_Calculate(Motor_3508[i]->Motor_PID, Motor_3508[i]->Target_Speed*Motor_3508[i]->ReductionRatio*Motor_3508[i]->IsPositive, (float)Motor_3508[i]->Rotor_Speed);
-    }
+    
     for (uint8_t i = 0; i < 4; i++)
     {
         angle_error=(int32_t)Motor_6020[i]->target_pos-(int32_t)Motor_6020[i]->Mechanical_Angle;
@@ -168,8 +166,20 @@ void Chassis_Send(Chassis_Type *chassis){
         } else if (angle_error < -4096) {
             angle_error += 8192;
         }
+        if (abs(angle_error) > 2048){
+            angle_error -= (angle_error > 0 ? 4096 : -4096);
+            // sqrt后驱动速度恒正，直接取反
+            Motor_3508[i]->Target_Speed = -Motor_3508[i]->Target_Speed;
+        }
+        target_steer_speed = PID_Calculate(Motor_6020[i]->Motor_Position_PID,0.0f,(float)-angle_error);
+        Motor_6020[i]->Target_Speed = (int16_t)target_steer_speed;
+        output_6020[Motor_6020[i]->motor_id-1]=PID_Calculate(Motor_6020[i]->Motor_PID,target_steer_speed,(float)Motor_6020[i]->Rotor_Speed);
+    }
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        output_3508[Motor_3508[i]->motor_id-1]=PID_Calculate(Motor_3508[i]->Motor_PID, Motor_3508[i]->Target_Speed*Motor_3508[i]->ReductionRatio*Motor_3508[i]->IsPositive, (float)Motor_3508[i]->Rotor_Speed);
     }
     
-    
     Can_Send(chassis->CANx,chassis->Chassis_3508_Type_Structure->tx_std_id,output_3508[0],output_3508[1],output_3508[2],output_3508[3]);
+    Can_Send(chassis->CANx,chassis->Chassis_6020_Type_Structure->tx_std_id,output_6020[0],output_6020[1],output_6020[2],output_6020[3]);
 }
