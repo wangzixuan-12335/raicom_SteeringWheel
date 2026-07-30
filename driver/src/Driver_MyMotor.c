@@ -3,11 +3,11 @@
 
 /**
  * @description: CAN解码
- * @param {MyMotor_3508_Type} *motor    //电机结构体
+ * @param {MyMotor_Type} *motor    //电机结构体
  * @param {uint8_t} *rx_data            //CAN接收的数据
  * @return {*}
  */
-void Motor_decode_data(MyMotor_3508_Type *motor, uint8_t *rx_data){
+void Motor_decode_data(MyMotor_Type *motor, uint8_t *rx_data){
     motor->Mechanical_Angle=(rx_data[0] << 8) | rx_data[1];
     motor->Rotor_Speed=(int16_t)((rx_data[2] << 8) | rx_data[3]);
     motor->Actual_Torque_Current=(int16_t)((rx_data[4] << 8) | rx_data[5]);
@@ -21,14 +21,17 @@ void Motor_decode_data(MyMotor_3508_Type *motor, uint8_t *rx_data){
 
 /**
  * @description: 初始化电机结构体
- * @param {MyMotor_3508_Type} *motor
+ * @param {MyMotor_Type} *motor
+ * @param {uint8_t} motor_id            电机或电调ID
  * @param {int8_t} IsPositive           是否正转
  * @param {uint8_t} ReductionRatio      减速比
  * @param {PID_Type} *speed_PID          速度环PID
  * @param {PID_Type} *position_PID       位置环环PID
+ * @param {uint16_t} ZeroOffset         零点偏移
  * @return {*}
  */
-void Motor_3508_Init(MyMotor_3508_Type *motor,int8_t IsPositive,uint8_t ReductionRatio,PID_Type *speed_PID,PID_Type *position_PID){
+void MyMotor_Init(MyMotor_Type *motor,uint8_t motor_id,int8_t IsPositive,uint8_t ReductionRatio,PID_Type *speed_PID,PID_Type *position_PID,uint16_t ZeroOffset){
+    motor->motor_id=motor_id;
     motor->IsPositive=IsPositive;
     motor->ReductionRatio=ReductionRatio;
     motor->IsActive=0;
@@ -44,14 +47,15 @@ void Motor_3508_Init(MyMotor_3508_Type *motor,int8_t IsPositive,uint8_t Reductio
     motor->crane_mode=MODE_POSITION_HOLD;
     motor->target_pos=0;
     motor->ramp_speed=0.0f;
+    motor->Zero_offset=ZeroOffset;
 }
 
 /**
  * @description: 计算连续角
- * @param {MyMotor_3508_Type} *motor 电机结构体
+ * @param {MyMotor_Type} *motor 电机结构体
  * @return {*}
  */
-void Update_3508_Continuous_Angle(MyMotor_3508_Type *motor){
+void Update_3508_Continuous_Angle(MyMotor_Type *motor){
     //获取转动差值
     int32_t diff=motor->Mechanical_Angle - motor->Mechanical_Angle_last;
     
